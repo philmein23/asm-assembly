@@ -7,7 +7,7 @@ use std::{
 
 pub struct Parser {
     current_instruction: String,
-    instruction_type: InstructionType,
+    instruction_type: Option<InstructionType>,
     instructions: VecDeque<String>,
     symbol: String,
     dest: String,
@@ -34,7 +34,7 @@ impl Parser {
 
         Parser {
             current_instruction: "".to_string(),
-            instruction_type: InstructionType::None,
+            instruction_type: None,
             instructions: tokens,
             symbol: "".to_string(),
             dest: "".to_string(),
@@ -47,7 +47,7 @@ impl Parser {
         match self.instructions.pop_front() {
             Some(token) => {
                 if token.starts_with("@") {
-                    self.instruction_type = InstructionType::A;
+                    self.instruction_type = Some(InstructionType::A);
                     self.current_instruction = token.to_string();
                     println!("{}", self.current_instruction);
                     self.handle_instruction();
@@ -56,7 +56,7 @@ impl Parser {
                 }
 
                 if token.starts_with("(") {
-                    self.instruction_type = InstructionType::L;
+                    self.instruction_type = Some(InstructionType::L);
                     self.current_instruction = token.to_string();
                     println!("{}", self.current_instruction);
                     self.handle_instruction();
@@ -64,7 +64,7 @@ impl Parser {
                     return Ok(());
                 }
 
-                self.instruction_type = InstructionType::C;
+                self.instruction_type = Some(InstructionType::C);
                 self.current_instruction = token.to_string();
                 println!("{}", self.current_instruction);
                 self.handle_instruction();
@@ -100,13 +100,13 @@ impl Parser {
 
     fn handle_instruction(&mut self) {
         match self.instruction_type {
-            InstructionType::A => {
+            Some(InstructionType::A) => {
                 let mut c1 = self.current_instruction.chars();
 
                 c1.next();
                 self.symbol = c1.as_str().to_string();
             }
-            InstructionType::L => {
+            Some(InstructionType::L) => {
                 let mut c1 = self.current_instruction.chars();
                 let start = 1;
                 let mut end = 0;
@@ -118,7 +118,7 @@ impl Parser {
                 }
                 self.symbol = self.current_instruction[start..=end].to_string();
             }
-            InstructionType::C => {
+            Some(InstructionType::C) => {
                 let mut c1 = self.current_instruction.chars();
                 let mut dest = "".to_string();
                 let mut comp = "".to_string();
@@ -158,5 +158,4 @@ enum InstructionType {
     A,
     C,
     L,
-    None,
 }
