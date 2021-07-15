@@ -30,7 +30,7 @@ impl Parser {
                 tokens.push_back(line.to_string());
             }
         }
-        println!("FILE: {:?}", tokens);
+        // println!("FILE: {:?}", tokens);
 
         Parser {
             current_instruction: "".to_string(),
@@ -49,27 +49,20 @@ impl Parser {
                 if token.starts_with("@") {
                     self.instruction_type = Some(InstructionType::A);
                     self.current_instruction = token.to_string();
-                    println!("{}", self.current_instruction);
                     self.handle_instruction();
-                    println!("{}", self.symbol);
                     return Ok(());
                 }
 
                 if token.starts_with("(") {
                     self.instruction_type = Some(InstructionType::L);
                     self.current_instruction = token.to_string();
-                    println!("{}", self.current_instruction);
                     self.handle_instruction();
-                    println!("{}", self.symbol);
                     return Ok(());
                 }
 
                 self.instruction_type = Some(InstructionType::C);
                 self.current_instruction = token.to_string();
-                println!("{}", self.current_instruction);
                 self.handle_instruction();
-                println!("C_INSTRUCTION- dest: {}", self.dest);
-                println!("C_INSTRUCTION- comp: {}", self.comp);
             }
 
             None => panic!("There are no more lines to parse."),
@@ -92,6 +85,10 @@ impl Parser {
 
     pub fn jump(&self) -> String {
         self.jump.clone()
+    }
+
+    pub fn instruction_type(&self) -> &Option<InstructionType> {
+        &self.instruction_type
     }
 
     pub fn has_more_instructions(&mut self) -> bool {
@@ -154,7 +151,7 @@ impl Parser {
     }
 }
 
-enum InstructionType {
+pub enum InstructionType {
     A,
     C,
     L,

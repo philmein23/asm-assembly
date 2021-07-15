@@ -9,8 +9,5 @@
 D=A
 @3
 D=D+A
-D=!A
-M=D;JMP
 @0
 M=D
-D;JLP
