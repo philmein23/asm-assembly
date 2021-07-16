@@ -1,10 +1,11 @@
 mod parser;
-use std::u8;
-
 use parser::{InstructionType, Parser};
 
 mod code;
 use code::Code;
+
+mod symbol_table;
+use symbol_table::SymbolTable;
 
 fn main() {
     let mut parser = Parser::new("Add.asm");
