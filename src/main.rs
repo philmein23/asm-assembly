@@ -1,4 +1,6 @@
 mod parser;
+use std::u8;
+
 use parser::{InstructionType, Parser};
 
 mod code;
@@ -11,7 +13,12 @@ fn main() {
         parser.advance();
 
         match parser.instruction_type() {
-            Some(InstructionType::A) => {}
+            Some(InstructionType::A) | Some(InstructionType::L) => {
+                let symbol = parser.symbol();
+                let int = symbol.parse::<u32>().unwrap();
+                let binary = format!("{:015b}", int);
+                println!("0{}", binary);
+            }
             Some(InstructionType::C) => {
                 let parser_dest = parser.dest();
                 let dest = Code::dest(parser_dest.as_str());
@@ -22,9 +29,8 @@ fn main() {
                 let parser_jump = parser.jump();
                 let jump = Code::jump(parser_jump.as_str());
 
-                println!("Binary format: 111{}{}{}", comp, dest, jump);
+                println!("111{}{}{}", comp, dest, jump);
             }
-            Some(InstructionType::L) => {}
             None => eprint!("No specified instruction type"),
         }
     }
