@@ -15,6 +15,34 @@ impl SymbolTable {
         }
     }
 
+    pub fn increment_line(&mut self) {
+        self.current_line += 1;
+    }
+
+    pub fn increment_address(&mut self) {
+        self.current_address += 1;
+    }
+
+    pub fn current_line(&self) -> usize {
+        self.current_line.clone()
+    }
+
+    pub fn current_address(&self) -> usize {
+        self.current_address.clone()
+    }
+
+    pub fn add_entry(&mut self, label: String, value: usize) {
+        self.table.insert(label, value);
+    }
+
+    pub fn contains(&self, label: &String) -> bool {
+        self.table.contains_key(label)
+    }
+
+    pub fn get_address(&self, label: &String) -> usize {
+        *self.table.get(label).unwrap()
+    }
+
     pub fn initialize_labels(&mut self) {
         for i in 0..=15 {
             let ram = format!("R{}", i);
