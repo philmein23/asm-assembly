@@ -1,16 +1,21 @@
+use core::panic;
+
 pub struct Code;
 
 impl Code {
-    pub fn dest(dest: &str) -> &str {
+    pub fn dest(dest: Option<&str>) -> &str {
         match dest {
-            "M" => "001",
-            "D" => "010",
-            "DM" => "011",
-            "A" => "100",
-            "AM" => "101",
-            "AD" => "110",
-            "ADM" => "111",
-            _ => "000",
+            None => "000",
+            Some(d) => match d {
+                "M" => "001",
+                "D" => "010",
+                "DM" => "011",
+                "A" => "100",
+                "AM" => "101",
+                "AD" => "110",
+                "ADM" => "111",
+                _ => panic!("Unrecognized dest: {}", d),
+            },
         }
     }
 
@@ -47,16 +52,19 @@ impl Code {
         }
     }
 
-    pub fn jump(jump: &str) -> &str {
+    pub fn jump(jump: Option<&str>) -> &str {
         match jump {
-            "JGT" => "001",
-            "JEQ" => "010",
-            "JGE" => "011",
-            "JLT" => "100",
-            "JNE" => "101",
-            "JLE" => "110",
-            "JMP" => "111",
-            _ => "000",
+            None => "000",
+            Some(j) => match j {
+                "JGT" => "001",
+                "JEQ" => "010",
+                "JGE" => "011",
+                "JLT" => "100",
+                "JNE" => "101",
+                "JLE" => "110",
+                "JMP" => "111",
+                _ => panic!("Unrecognized jump: {}", j),
+            },
         }
     }
 }

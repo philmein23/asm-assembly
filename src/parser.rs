@@ -10,9 +10,9 @@ pub struct Parser {
     instruction_type: Option<InstructionType>,
     instructions: VecDeque<String>,
     symbol: String,
-    dest: String,
+    dest: Option<String>,
     comp: String,
-    jump: String,
+    jump: Option<String>,
 }
 
 impl Parser {
@@ -27,7 +27,7 @@ impl Parser {
 
         while let Some(line) = lines.next() {
             if !line.starts_with("//") && !line.is_empty() {
-                tokens.push_back(line.to_string());
+                tokens.push_back(line.trim().to_string());
             }
         }
         // println!("FILE: {:?}", tokens);
@@ -37,9 +37,9 @@ impl Parser {
             instruction_type: None,
             instructions: tokens,
             symbol: "".to_string(),
-            dest: "".to_string(),
+            dest: None,
             comp: "".to_string(),
-            jump: "".to_string(),
+            jump: None,
         }
     }
 
@@ -75,7 +75,7 @@ impl Parser {
         self.symbol.clone()
     }
 
-    pub fn dest(&self) -> String {
+    pub fn dest(&self) -> Option<String> {
         self.dest.clone()
     }
 
@@ -83,7 +83,7 @@ impl Parser {
         self.comp.clone()
     }
 
-    pub fn jump(&self) -> String {
+    pub fn jump(&self) -> Option<String> {
         self.jump.clone()
     }
 
@@ -129,7 +129,7 @@ impl Parser {
                         dest.push(c);
                     }
 
-                    self.dest = dest;
+                    self.dest = if dest.is_empty() { None } else { Some(dest) }
                 }
 
                 while let Some(c) = c1.next() {
@@ -144,7 +144,7 @@ impl Parser {
                     jump.push(c);
                 }
 
-                self.jump = jump;
+                self.jump = if jump.is_empty() { None } else { Some(jump) }
             }
             (_) => panic!("Incorrect instruction type"),
         }

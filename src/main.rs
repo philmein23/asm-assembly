@@ -16,29 +16,43 @@ fn is_string_numeric(str: &str) -> bool {
     return true;
 }
 
-fn main() {
-    let mut parser = Parser::new("Add.asm");
-    let mut symbol_table = SymbolTable::new();
-    symbol_table.initialize_labels();
+fn first_pass(table: &mut SymbolTable) {
+    let mut parser = Parser::new("Max.asm");
 
     while parser.has_more_instructions() {
         parser.advance();
 
         match parser.instruction_type() {
             Some(InstructionType::A) => {
-                symbol_table.increment_line();
+                table.increment_line();
+            }
+            Some(InstructionType::L) => table.add_entry(parser.symbol(), table.current_line()),
+            Some(InstructionType::C) => {
+                table.increment_line();
+            }
+            None => eprint!("No specified instruction type"),
+        }
+    }
+}
 
+fn second_pass(table: &mut SymbolTable) {
+    let mut parser = Parser::new("Max.asm");
+
+    while parser.has_more_instructions() {
+        parser.advance();
+
+        match parser.instruction_type() {
+            Some(InstructionType::A) => {
                 let symbol = parser.symbol();
-
                 let address = if is_string_numeric(&symbol) {
                     let address = symbol.parse::<usize>().unwrap();
                     address
-                } else if !is_string_numeric(&symbol) && !symbol_table.contains(&symbol) {
-                    symbol_table.add_entry(symbol.clone(), symbol_table.current_address());
-                    symbol_table.increment_address();
-                    symbol_table.get_address(&symbol)
+                } else if !is_string_numeric(&symbol) && !table.contains(&symbol) {
+                    table.add_entry(symbol.clone(), table.current_address());
+                    table.increment_address();
+                    table.get_address(&symbol)
                 } else {
-                    symbol_table.get_address(&symbol)
+                    table.get_address(&symbol)
                 };
 
                 let binary = format!("{:015b}", address);
@@ -47,31 +61,39 @@ fn main() {
             Some(InstructionType::L) => {
                 let symbol = parser.symbol();
 
-                let address = if symbol_table.contains(&symbol) {
-                    symbol_table.get_address(&symbol)
-                } else {
-                    symbol_table.add_entry(symbol.clone(), symbol_table.current_line() + 1);
-                    symbol_table.get_address(&symbol)
-                };
+                let address = table.get_address(&symbol);
 
                 let binary = format!("{:015b}", address);
                 println!("0{}", binary);
             }
             Some(InstructionType::C) => {
-                symbol_table.increment_line();
-
                 let parser_dest = parser.dest();
-                let dest = Code::dest(parser_dest.as_str());
+                let dest = Code::dest(parser_dest.as_deref());
 
                 let parser_comp = parser.comp();
                 let comp = Code::comp(parser_comp.as_str());
 
                 let parser_jump = parser.jump();
-                let jump = Code::jump(parser_jump.as_str());
+                let jump = Code::jump(parser_jump.as_deref());
+                println!("TRYING TO JUMP: {}", jump);
 
                 println!("111{}{}{}", comp, dest, jump);
             }
             None => eprint!("No specified instruction type"),
         }
     }
+}
+
+fn main() {
+    let mut symbol_table = SymbolTable::new();
+    symbol_table.initialize_labels();
+
+    first_pass(&mut symbol_table);
+    second_pass(&mut symbol_table);
+
+    let string1 = "INFINITE_LOOP";
+    println!(
+        "TABLECHECK: {}",
+        symbol_table.get_address(&string1.to_string())
+    )
 }
