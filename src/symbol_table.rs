@@ -57,7 +57,5 @@ impl SymbolTable {
         self.table.insert("THAT".to_string(), 4);
         self.table.insert("SCREEN".to_string(), 16384);
         self.table.insert("KBD".to_string(), 24576);
-
-        println!("TABLE: {:?}", self.table);
     }
 }

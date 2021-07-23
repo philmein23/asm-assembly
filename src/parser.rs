@@ -20,6 +20,7 @@ impl Parser {
         let mut file = File::open(filename).unwrap();
         let mut buffer = String::new();
         let mut tokens = VecDeque::new();
+        let mut token = "";
 
         file.read_to_string(&mut buffer);
 
@@ -27,10 +28,20 @@ impl Parser {
 
         while let Some(line) = lines.next() {
             if !line.starts_with("//") && !line.is_empty() {
+                if line.contains(char::is_whitespace) {
+                    token = match line.split_whitespace().next() {
+                        None => line.trim(),
+                        Some(val) => val.trim(),
+                    };
+                    tokens.push_back(token.to_string());
+
+                    continue;
+                }
                 tokens.push_back(line.trim().to_string());
             }
         }
-        // println!("FILE: {:?}", tokens);
+
+        println!("FILE: {:?}", tokens);
 
         Parser {
             current_instruction: "".to_string(),
@@ -98,10 +109,10 @@ impl Parser {
     fn handle_instruction(&mut self) {
         match self.instruction_type {
             Some(InstructionType::A) => {
-                let mut c1 = self.current_instruction.chars();
+                let mut c1 = self.current_instruction.chars().peekable();
 
                 c1.next();
-                self.symbol = c1.as_str().to_string();
+                self.symbol = c1.collect();
             }
             Some(InstructionType::L) => {
                 let mut c1 = self.current_instruction.chars();
@@ -116,7 +127,7 @@ impl Parser {
                 self.symbol = self.current_instruction[start..=end].to_string();
             }
             Some(InstructionType::C) => {
-                let mut c1 = self.current_instruction.chars();
+                let mut c1 = self.current_instruction.chars().peekable();
                 let mut dest = "".to_string();
                 let mut comp = "".to_string();
                 let mut jump = "".to_string();
@@ -128,20 +139,24 @@ impl Parser {
                         }
                         dest.push(c);
                     }
-
-                    self.dest = if dest.is_empty() { None } else { Some(dest) }
                 }
+                self.dest = if dest.is_empty() { None } else { Some(dest) };
 
-                while let Some(c) = c1.next() {
-                    if c == ';' || c == ' ' {
-                        break;
+                while c1.peek() != Some(&';') {
+                    match c1.next() {
+                        None => break,
+                        Some(c) => comp.push(c),
                     }
-                    comp.push(c);
                 }
                 self.comp = comp;
 
                 while let Some(c) = c1.next() {
-                    jump.push(c);
+                    match c {
+                        val if val == ';' => {
+                            continue;
+                        }
+                        val2 => jump.push(val2),
+                    }
                 }
 
                 self.jump = if jump.is_empty() { None } else { Some(jump) }

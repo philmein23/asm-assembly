@@ -17,7 +17,7 @@ fn is_string_numeric(str: &str) -> bool {
 }
 
 fn first_pass(table: &mut SymbolTable) {
-    let mut parser = Parser::new("Max.asm");
+    let mut parser = Parser::new("MaxL.asm");
 
     while parser.has_more_instructions() {
         parser.advance();
@@ -36,7 +36,7 @@ fn first_pass(table: &mut SymbolTable) {
 }
 
 fn second_pass(table: &mut SymbolTable) {
-    let mut parser = Parser::new("Max.asm");
+    let mut parser = Parser::new("MaxL.asm");
 
     while parser.has_more_instructions() {
         parser.advance();
@@ -59,12 +59,7 @@ fn second_pass(table: &mut SymbolTable) {
                 println!("0{}", binary);
             }
             Some(InstructionType::L) => {
-                let symbol = parser.symbol();
-
-                let address = table.get_address(&symbol);
-
-                let binary = format!("{:015b}", address);
-                println!("0{}", binary);
+                continue;
             }
             Some(InstructionType::C) => {
                 let parser_dest = parser.dest();
@@ -75,7 +70,6 @@ fn second_pass(table: &mut SymbolTable) {
 
                 let parser_jump = parser.jump();
                 let jump = Code::jump(parser_jump.as_deref());
-                println!("TRYING TO JUMP: {}", jump);
 
                 println!("111{}{}{}", comp, dest, jump);
             }
@@ -90,10 +84,4 @@ fn main() {
 
     first_pass(&mut symbol_table);
     second_pass(&mut symbol_table);
-
-    let string1 = "INFINITE_LOOP";
-    println!(
-        "TABLECHECK: {}",
-        symbol_table.get_address(&string1.to_string())
-    )
 }
